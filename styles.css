@@ -334,7 +334,7 @@ textarea::placeholder {
   border-color: rgba(57, 200, 182, 0.22);
 }
 
-.event-card summary {
+.event-card > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -345,11 +345,11 @@ textarea::placeholder {
   cursor: pointer;
 }
 
-.event-card summary::-webkit-details-marker {
+.event-card > summary::-webkit-details-marker {
   display: none;
 }
 
-.event-card summary::after {
+.event-card > summary::after {
   content: "+";
   display: grid;
   flex: 0 0 auto;
@@ -364,11 +364,11 @@ textarea::placeholder {
   line-height: 1;
 }
 
-.event-card[open] summary {
+.event-card[open] > summary {
   border-bottom: 1px solid rgba(90, 112, 103, 0.34);
 }
 
-.event-card[open] summary::after {
+.event-card[open] > summary::after {
   content: "-";
 }
 
@@ -377,6 +377,13 @@ textarea::placeholder {
   color: var(--accent-dark);
   font-size: 0.84rem;
   font-weight: 900;
+}
+
+.group-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .event-content {
@@ -393,6 +400,118 @@ textarea::placeholder {
   margin: 0;
   color: #c5d0ca;
   line-height: 1.58;
+  white-space: pre-wrap;
+}
+
+.year-event-list {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 0 0 0 24px;
+  list-style: none;
+}
+
+.year-event-list::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(var(--accent), var(--warm));
+}
+
+.year-event {
+  position: relative;
+}
+
+.year-event::before {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: 17px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  background: var(--warm);
+  box-shadow: 0 0 0 2px rgba(255, 139, 110, 0.28);
+}
+
+.year-event.dragging {
+  opacity: 0.58;
+}
+
+.year-event-card {
+  border: 1px solid rgba(90, 112, 103, 0.42);
+  border-radius: 8px;
+  background: rgba(16, 21, 19, 0.7);
+  overflow: hidden;
+}
+
+.year-event-card > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 14px;
+  list-style: none;
+  cursor: grab;
+}
+
+.year-event-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.year-event-card > summary::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper-soft);
+  color: var(--accent-dark);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.year-event-card[open] > summary {
+  border-bottom: 1px solid rgba(90, 112, 103, 0.34);
+}
+
+.year-event-card[open] > summary::after {
+  content: "-";
+}
+
+.drag-handle {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 26px;
+  opacity: 0.78;
+  background-image: radial-gradient(circle, var(--muted) 1.5px, transparent 1.8px);
+  background-position: center;
+  background-size: 6px 6px;
+}
+
+.year-event-content {
+  padding: 14px 16px 16px;
+}
+
+.year-event-content h4 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.year-event-content p {
+  margin: 0;
+  color: #c5d0ca;
+  line-height: 1.55;
   white-space: pre-wrap;
 }
 

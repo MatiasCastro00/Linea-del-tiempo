@@ -43,6 +43,7 @@ const MONTH_NAMES = {
 
 let profile = loadProfile();
 let events = loadEvents();
+let draggedEventId = "";
 
 function todayIso() {
   const today = new Date();
@@ -91,13 +92,13 @@ function loadEvents() {
     const parsed = JSON.parse(rawEvents);
     if (!Array.isArray(parsed)) return [];
 
-    return parsed.map(normalizeEvent).filter(Boolean);
+    return parsed.map((event, index) => normalizeEvent(event, index)).filter(Boolean);
   } catch {
     return [];
   }
 }
 
-function normalizeEvent(event) {
+function normalizeEvent(event, fallbackOrder = 0) {
   if (!event || !event.id || !event.title || !event.description) return null;
 
   let year = event.year ? String(event.year) : "";
@@ -118,6 +119,7 @@ function normalizeEvent(event) {
     month,
     title: event.title,
     description: event.description,
+    order: Number.isFinite(Number(event.order)) ? Number(event.order) : fallbackOrder,
     updatedAt: event.updatedAt || new Date().toISOString(),
   };
 }
@@ -133,7 +135,15 @@ function saveEvents() {
 }
 
 function sortEvents(items) {
-  return [...items].sort((first, second) => getSortKey(first).localeCompare(getSortKey(second)));
+  return [...items].sort((first, second) => {
+    const yearSort = first.year.localeCompare(second.year);
+    if (yearSort !== 0) return yearSort;
+
+    const orderSort = Number(first.order || 0) - Number(second.order || 0);
+    if (orderSort !== 0) return orderSort;
+
+    return getSortKey(first).localeCompare(getSortKey(second));
+  });
 }
 
 function getSortKey(event) {
@@ -179,7 +189,7 @@ function buildTimelineItems() {
     });
   }
 
-  sortEvents(events).forEach((event) => items.push(event));
+  buildYearItems().forEach((event) => items.push(event));
 
   if (profile.birthDate) {
     items.push({
@@ -192,6 +202,28 @@ function buildTimelineItems() {
   }
 
   return items;
+}
+
+function buildYearItems() {
+  const byYear = new Map();
+
+  sortEvents(events).forEach((event) => {
+    if (!byYear.has(event.year)) byYear.set(event.year, []);
+    byYear.get(event.year).push(event);
+  });
+
+  return Array.from(byYear.entries()).map(([year, yearEvents]) => {
+    if (yearEvents.length === 1) return yearEvents[0];
+
+    return {
+      id: `year-group-${year}`,
+      year,
+      title: year,
+      description: `${yearEvents.length} acontecimientos guardados en este año.`,
+      group: true,
+      events: yearEvents,
+    };
+  });
 }
 
 function renderTimeline() {
@@ -207,6 +239,7 @@ function renderTimeline() {
 
     item.dataset.id = event.id;
     item.classList.toggle("marker", Boolean(event.marker));
+    item.classList.toggle("year-group", Boolean(event.group));
     item.querySelector("time").dateTime = getMachineDate(event);
     item.querySelector("time").textContent = formatEventDate(event);
     item.querySelector("h3").textContent = event.title;
@@ -214,11 +247,133 @@ function renderTimeline() {
 
     const editButton = item.querySelector(".edit-button");
     const deleteButton = item.querySelector(".delete-button");
-    editButton.addEventListener("click", () => startEditing(event.id));
-    deleteButton.addEventListener("click", () => deleteEvent(event.id));
+    if (event.group) {
+      renderYearGroup(item, event);
+    } else {
+      editButton.addEventListener("click", () => startEditing(event.id));
+      deleteButton.addEventListener("click", () => deleteEvent(event.id));
+    }
 
     timeline.append(item);
   });
+}
+
+function renderYearGroup(item, group) {
+  const summary = item.querySelector("summary");
+  const content = item.querySelector(".event-content");
+  const actions = item.querySelector(".card-actions");
+  const count = document.createElement("span");
+  const list = document.createElement("ol");
+
+  count.className = "group-count";
+  count.textContent = `${group.events.length} recuerdos`;
+  summary.append(count);
+  actions.remove();
+
+  list.className = "year-event-list";
+  list.dataset.year = group.year;
+
+  group.events.forEach((event) => list.append(createYearEventItem(event)));
+  wireYearDragAndDrop(list);
+  content.append(list);
+}
+
+function createYearEventItem(event) {
+  const item = document.createElement("li");
+  const card = document.createElement("details");
+  const summary = document.createElement("summary");
+  const handle = document.createElement("span");
+  const time = document.createElement("time");
+  const content = document.createElement("div");
+  const title = document.createElement("h4");
+  const description = document.createElement("p");
+  const actions = document.createElement("div");
+  const editButton = document.createElement("button");
+  const deleteButton = document.createElement("button");
+
+  item.className = "year-event";
+  item.dataset.id = event.id;
+  item.draggable = true;
+
+  card.className = "year-event-card";
+  handle.className = "drag-handle";
+  handle.setAttribute("aria-hidden", "true");
+  handle.title = "Arrastrar";
+  time.dateTime = getMachineDate(event);
+  time.textContent = formatEventDate(event);
+
+  content.className = "year-event-content";
+  title.textContent = event.title;
+  description.textContent = event.description;
+
+  actions.className = "card-actions";
+  editButton.type = "button";
+  editButton.className = "edit-button";
+  editButton.textContent = "Editar";
+  deleteButton.type = "button";
+  deleteButton.className = "delete-button";
+  deleteButton.textContent = "Eliminar";
+
+  editButton.addEventListener("click", () => startEditing(event.id));
+  deleteButton.addEventListener("click", () => deleteEvent(event.id));
+
+  summary.append(handle, time);
+  actions.append(editButton, deleteButton);
+  content.append(title, description, actions);
+  card.append(summary, content);
+  item.append(card);
+
+  return item;
+}
+
+function wireYearDragAndDrop(list) {
+  list.addEventListener("dragstart", (event) => {
+    const item = event.target.closest(".year-event");
+    if (!item) return;
+
+    draggedEventId = item.dataset.id;
+    item.classList.add("dragging");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", draggedEventId);
+  });
+
+  list.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    const draggingItem = list.querySelector(".dragging");
+    const target = event.target.closest(".year-event:not(.dragging)");
+    if (!draggingItem || !target || target.parentElement !== list) return;
+
+    const rect = target.getBoundingClientRect();
+    const shouldPlaceAfter = event.clientY > rect.top + rect.height / 2;
+    list.insertBefore(draggingItem, shouldPlaceAfter ? target.nextSibling : target);
+  });
+
+  list.addEventListener("drop", (event) => {
+    event.preventDefault();
+    saveYearOrder(list);
+  });
+
+  list.addEventListener("dragend", () => {
+    const draggingItem = list.querySelector(".dragging");
+    if (draggingItem) draggingItem.classList.remove("dragging");
+    saveYearOrder(list);
+    draggedEventId = "";
+  });
+}
+
+function saveYearOrder(list) {
+  const ids = Array.from(list.querySelectorAll(".year-event")).map((item) => item.dataset.id);
+  let changed = false;
+
+  ids.forEach((id, index) => {
+    const event = events.find((item) => item.id === id);
+    if (event && event.order !== index) {
+      event.order = index;
+      changed = true;
+    }
+  });
+
+  if (changed) saveEvents();
 }
 
 function resetForm() {
@@ -279,14 +434,24 @@ function upsertEvent(event) {
   const existingIndex = events.findIndex((item) => item.id === event.id);
 
   if (existingIndex >= 0) {
+    const previousEvent = events[existingIndex];
+    event.order = previousEvent.year === event.year ? previousEvent.order : getNextOrderForYear(event.year);
     events[existingIndex] = event;
   } else {
+    event.order = getNextOrderForYear(event.year);
     events.push(event);
   }
 
   if (saveEvents()) {
     renderTimeline();
   }
+}
+
+function getNextOrderForYear(year) {
+  const yearOrders = events.filter((event) => event.year === year).map((event) => Number(event.order || 0));
+  if (yearOrders.length === 0) return 0;
+
+  return Math.max(...yearOrders) + 1;
 }
 
 function startEditing(id) {
@@ -352,7 +517,7 @@ function normalizeImportedData(data) {
     throw new Error("invalid-birth-date");
   }
 
-  const normalizedEvents = importedEvents.map(normalizeEvent).filter(Boolean);
+  const normalizedEvents = importedEvents.map((event, index) => normalizeEvent(event, index)).filter(Boolean);
 
   if (importedEvents.length !== normalizedEvents.length) {
     throw new Error("invalid-event-data");
