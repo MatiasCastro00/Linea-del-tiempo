@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Linea del tiempo personal</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel">
+        <div class="brand-row">
+          <div>
+            <p class="eyebrow">Tarea personal</p>
+            <h1>Linea del tiempo</h1>
+          </div>
+          <div class="privacy-chip">Guardado local</div>
+        </div>
+        <div class="range-summary">
+          <span>Inicio</span>
+          <strong id="birth-summary">Fecha de nacimiento pendiente</strong>
+        </div>
+      </section>
+
+      <section class="timeline-section" aria-labelledby="timeline-title">
+        <div class="timeline-toolbar">
+          <div>
+            <p class="eyebrow">Recuerdos ordenados</p>
+            <h2 id="timeline-title">Acontecimientos</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="icon-button" type="button" id="change-birth-button">Cambiar nacimiento</button>
+            <button class="icon-button" type="button" id="export-button" title="Descargar copia">Guardar copia</button>
+            <button class="icon-button danger" type="button" id="clear-button" title="Borrar todo">Borrar todo</button>
+          </div>
+        </div>
+
+        <ol id="timeline" class="timeline" aria-live="polite"></ol>
+        <div id="empty-state" class="empty-state">
+          <div class="empty-visual" aria-hidden="true"></div>
+          <p>Todavia no hay acontecimientos.</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="timeline-item-template">
+      <li class="timeline-item">
+        <article class="event-card">
+          <time></time>
+          <h3></h3>
+          <p></p>
+          <div class="card-actions">
+            <button type="button" class="edit-button">Editar</button>
+            <button type="button" class="delete-button">Eliminar</button>
+          </div>
+        </article>
+      </li>
+    </template>
+
+    <button class="fab" type="button" id="open-event-dialog" aria-label="Agregar acontecimiento">+</button>
+
+    <dialog id="birth-dialog" class="modal">
+      <form id="birth-form" class="modal-card" method="dialog" autocomplete="off">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Primer paso</p>
+            <h2>Fecha de nacimiento</h2>
+          </div>
+        </div>
+
+        <label>
+          <span>Tu fecha de nacimiento</span>
+          <input id="birth-date" type="date" required />
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-button" type="submit">
+            <span>Guardar fecha</span>
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="event-dialog" class="modal">
+      <form id="event-form" class="modal-card event-form" method="dialog" autocomplete="off">
+        <input type="hidden" id="event-id" />
+
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Acontecimiento</p>
+            <h2 id="event-dialog-title">Agregar recuerdo</h2>
+          </div>
+          <button class="round-button" type="button" id="close-event-dialog" aria-label="Cerrar">x</button>
+        </div>
+
+        <label>
+          <span>Fecha</span>
+          <input id="event-date" type="date" required />
+        </label>
+
+        <label>
+          <span>Titulo</span>
+          <input id="event-title" type="text" maxlength="80" required placeholder="Ej: Mudanza, nacimiento, viaje..." />
+        </label>
+
+        <label class="wide">
+          <span>Descripcion</span>
+          <textarea id="event-description" maxlength="700" rows="4" required placeholder="Escribi que paso y por que fue importante para vos."></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-button" type="submit" id="save-button">
+            <span class="button-icon">+</span>
+            <span>Agregar acontecimiento</span>
+          </button>
+          <button class="ghost-button" type="button" id="cancel-edit" hidden>Cancelar edicion</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
