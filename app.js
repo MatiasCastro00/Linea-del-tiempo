@@ -12,7 +12,8 @@ const openEventDialogButton = document.querySelector("#open-event-dialog");
 const closeEventDialogButton = document.querySelector("#close-event-dialog");
 const form = document.querySelector("#event-form");
 const idInput = document.querySelector("#event-id");
-const dateInput = document.querySelector("#event-date");
+const yearInput = document.querySelector("#event-year");
+const monthInput = document.querySelector("#event-month");
 const titleInput = document.querySelector("#event-title");
 const descriptionInput = document.querySelector("#event-description");
 const saveButton = document.querySelector("#save-button span:last-child");
@@ -22,6 +23,21 @@ const emptyState = document.querySelector("#empty-state");
 const template = document.querySelector("#timeline-item-template");
 const exportButton = document.querySelector("#export-button");
 const clearButton = document.querySelector("#clear-button");
+
+const MONTH_NAMES = {
+  "01": "enero",
+  "02": "febrero",
+  "03": "marzo",
+  "04": "abril",
+  "05": "mayo",
+  "06": "junio",
+  "07": "julio",
+  "08": "agosto",
+  "09": "septiembre",
+  "10": "octubre",
+  "11": "noviembre",
+  "12": "diciembre",
+};
 
 let profile = loadProfile();
 let events = loadEvents();
@@ -33,6 +49,14 @@ function todayIso() {
   const day = String(today.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+function currentYear() {
+  return new Date().getFullYear();
+}
+
+function currentMonth() {
+  return String(new Date().getMonth() + 1).padStart(2, "0");
 }
 
 function loadProfile() {
@@ -65,10 +89,35 @@ function loadEvents() {
     const parsed = JSON.parse(rawEvents);
     if (!Array.isArray(parsed)) return [];
 
-    return parsed.filter((event) => event.id && event.date && event.title && event.description);
+    return parsed.map(normalizeEvent).filter(Boolean);
   } catch {
     return [];
   }
+}
+
+function normalizeEvent(event) {
+  if (!event || !event.id || !event.title || !event.description) return null;
+
+  let year = event.year ? String(event.year) : "";
+  let month = event.month ? String(event.month).padStart(2, "0") : "";
+
+  if (!year && event.date) {
+    const [legacyYear, legacyMonth] = String(event.date).split("-");
+    year = legacyYear || "";
+    month = legacyMonth || "";
+  }
+
+  if (!/^\d{4}$/.test(year)) return null;
+  if (month && !MONTH_NAMES[month]) month = "";
+
+  return {
+    id: event.id,
+    year,
+    month,
+    title: event.title,
+    description: event.description,
+    updatedAt: event.updatedAt || new Date().toISOString(),
+  };
 }
 
 function saveEvents() {
@@ -82,7 +131,19 @@ function saveEvents() {
 }
 
 function sortEvents(items) {
-  return [...items].sort((first, second) => first.date.localeCompare(second.date));
+  return [...items].sort((first, second) => getSortKey(first).localeCompare(getSortKey(second)));
+}
+
+function getSortKey(event) {
+  if (event.date) return event.date;
+
+  return `${event.year}-${event.month || "00"}`;
+}
+
+function getMachineDate(event) {
+  if (event.date) return event.date;
+
+  return event.month ? `${event.year}-${event.month}` : event.year;
 }
 
 function formatDate(value) {
@@ -94,6 +155,13 @@ function formatDate(value) {
     month: "long",
     year: "numeric",
   }).format(date);
+}
+
+function formatEventDate(event) {
+  if (event.date) return formatDate(event.date);
+  if (event.month) return `${MONTH_NAMES[event.month]} de ${event.year}`;
+
+  return event.year;
 }
 
 function buildTimelineItems() {
@@ -137,8 +205,8 @@ function renderTimeline() {
 
     item.dataset.id = event.id;
     item.classList.toggle("marker", Boolean(event.marker));
-    item.querySelector("time").dateTime = event.date;
-    item.querySelector("time").textContent = formatDate(event.date);
+    item.querySelector("time").dateTime = getMachineDate(event);
+    item.querySelector("time").textContent = formatEventDate(event);
     item.querySelector("h3").textContent = event.title;
     item.querySelector("p").textContent = event.description;
 
@@ -157,14 +225,14 @@ function resetForm() {
   eventDialogTitle.textContent = "Agregar recuerdo";
   saveButton.textContent = "Agregar acontecimiento";
   cancelEditButton.hidden = true;
-  dateInput.min = profile.birthDate || "";
-  dateInput.max = todayIso();
+  yearInput.min = profile.birthDate ? profile.birthDate.slice(0, 4) : "1900";
+  yearInput.max = String(currentYear());
 }
 
 function openEventDialog() {
   resetForm();
   if (!eventDialog.open) eventDialog.showModal();
-  dateInput.focus();
+  yearInput.focus();
 }
 
 function closeEventDialog() {
@@ -183,11 +251,26 @@ function createId() {
 function createEventFromForm() {
   return {
     id: idInput.value || createId(),
-    date: dateInput.value,
+    year: yearInput.value,
+    month: monthInput.value,
     title: titleInput.value.trim(),
     description: descriptionInput.value.trim(),
     updatedAt: new Date().toISOString(),
   };
+}
+
+function isEventDateInRange(event) {
+  const year = Number(event.year);
+  const minYear = profile.birthDate ? Number(profile.birthDate.slice(0, 4)) : 1900;
+  const maxYear = currentYear();
+
+  if (year < minYear || year > maxYear) return false;
+  if (!event.month) return true;
+  if (profile.birthDate && event.year === profile.birthDate.slice(0, 4) && event.month < profile.birthDate.slice(5, 7)) {
+    return false;
+  }
+
+  return !(year === maxYear && event.month > currentMonth());
 }
 
 function upsertEvent(event) {
@@ -210,7 +293,8 @@ function startEditing(id) {
 
   resetForm();
   idInput.value = event.id;
-  dateInput.value = event.date;
+  yearInput.value = event.year;
+  monthInput.value = event.month || "";
   titleInput.value = event.title;
   descriptionInput.value = event.description;
   eventDialogTitle.textContent = "Editar recuerdo";
@@ -238,6 +322,7 @@ function exportEvents() {
   const content = JSON.stringify(
     {
       birthDate: profile.birthDate,
+      exportedAt: new Date().toISOString(),
       events: sortEvents(events),
     },
     null,
@@ -281,7 +366,11 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const nextEvent = createEventFromForm();
-  if (!nextEvent.title || !nextEvent.description) return;
+  if (!nextEvent.year || !nextEvent.title || !nextEvent.description) return;
+  if (!isEventDateInRange(nextEvent)) {
+    window.alert("El acontecimiento tiene que estar entre tu nacimiento y la actualidad.");
+    return;
+  }
 
   upsertEvent(nextEvent);
   closeEventDialog();
@@ -307,7 +396,7 @@ clearButton.addEventListener("click", () => {
 });
 
 birthDateInput.max = todayIso();
-dateInput.max = todayIso();
+yearInput.max = String(currentYear());
 renderTimeline();
 
 if (!profile.birthDate) {

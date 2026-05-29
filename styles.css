@@ -30,7 +30,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -148,7 +149,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   border: 1px solid #b9c7d8;
   border-radius: 8px;
@@ -165,7 +167,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: var(--accent);
   background: #ffffff;
   box-shadow: 0 0 0 4px rgba(19, 127, 120, 0.14);

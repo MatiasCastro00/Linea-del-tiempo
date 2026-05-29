@@ -30,7 +30,7 @@
           </div>
           <div class="toolbar-actions">
             <button class="icon-button" type="button" id="change-birth-button">Cambiar nacimiento</button>
-            <button class="icon-button" type="button" id="export-button" title="Descargar copia">Guardar copia</button>
+            <button class="icon-button" type="button" id="export-button" title="Descargar copia">Exportar copia</button>
             <button class="icon-button danger" type="button" id="clear-button" title="Borrar todo">Borrar todo</button>
           </div>
         </div>
@@ -94,8 +94,27 @@
         </div>
 
         <label>
-          <span>Fecha</span>
-          <input id="event-date" type="date" required />
+          <span>Año</span>
+          <input id="event-year" type="number" min="1900" max="2100" inputmode="numeric" required placeholder="Ej: 2012" />
+        </label>
+
+        <label>
+          <span>Mes opcional</span>
+          <select id="event-month">
+            <option value="">Sin mes</option>
+            <option value="01">Enero</option>
+            <option value="02">Febrero</option>
+            <option value="03">Marzo</option>
+            <option value="04">Abril</option>
+            <option value="05">Mayo</option>
+            <option value="06">Junio</option>
+            <option value="07">Julio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
         </label>
 
         <label>
