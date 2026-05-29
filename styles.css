@@ -326,12 +326,50 @@ textarea::placeholder {
   border: 1px solid rgba(90, 112, 103, 0.46);
   border-radius: 8px;
   background: var(--paper);
-  padding: 18px;
+  overflow: hidden;
 }
 
 .timeline-item.marker .event-card {
   background: rgba(57, 200, 182, 0.08);
   border-color: rgba(57, 200, 182, 0.22);
+}
+
+.event-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 58px;
+  padding: 0 18px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.event-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.event-card summary::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper-soft);
+  color: var(--accent-dark);
+  font-size: 1.2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.event-card[open] summary {
+  border-bottom: 1px solid rgba(90, 112, 103, 0.34);
+}
+
+.event-card[open] summary::after {
+  content: "-";
 }
 
 .event-card time {
@@ -341,8 +379,12 @@ textarea::placeholder {
   font-weight: 900;
 }
 
+.event-content {
+  padding: 18px;
+}
+
 .event-card h3 {
-  margin: 8px 0 8px;
+  margin: 0 0 8px;
   font-size: 1.2rem;
   line-height: 1.2;
 }

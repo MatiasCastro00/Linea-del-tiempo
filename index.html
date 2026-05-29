@@ -45,15 +45,19 @@
 
     <template id="timeline-item-template">
       <li class="timeline-item">
-        <article class="event-card">
-          <time></time>
-          <h3></h3>
-          <p></p>
-          <div class="card-actions">
-            <button type="button" class="edit-button">Editar</button>
-            <button type="button" class="delete-button">Eliminar</button>
+        <details class="event-card">
+          <summary>
+            <time></time>
+          </summary>
+          <div class="event-content">
+            <h3></h3>
+            <p></p>
+            <div class="card-actions">
+              <button type="button" class="edit-button">Editar</button>
+              <button type="button" class="delete-button">Eliminar</button>
+            </div>
           </div>
-        </article>
+        </details>
       </li>
     </template>
 
