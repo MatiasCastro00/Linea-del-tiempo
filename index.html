@@ -31,7 +31,9 @@
           <div class="toolbar-actions">
             <button class="icon-button" type="button" id="change-birth-button">Cambiar nacimiento</button>
             <button class="icon-button" type="button" id="export-button" title="Descargar copia">Exportar copia</button>
+            <button class="icon-button" type="button" id="import-button" title="Importar copia">Importar copia</button>
             <button class="icon-button danger" type="button" id="clear-button" title="Borrar todo">Borrar todo</button>
+            <input id="import-file" type="file" accept="application/json,.json" hidden />
           </div>
         </div>
 
@@ -98,7 +100,7 @@
         </div>
 
         <label>
-          <span>Año</span>
+          <span>A&ntilde;o</span>
           <input id="event-year" type="number" min="1900" max="2100" inputmode="numeric" required placeholder="Ej: 2012" />
         </label>
 

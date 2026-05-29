@@ -22,6 +22,8 @@ const timeline = document.querySelector("#timeline");
 const emptyState = document.querySelector("#empty-state");
 const template = document.querySelector("#timeline-item-template");
 const exportButton = document.querySelector("#export-button");
+const importButton = document.querySelector("#import-button");
+const importFileInput = document.querySelector("#import-file");
 const clearButton = document.querySelector("#clear-button");
 
 const MONTH_NAMES = {
@@ -338,6 +340,65 @@ function exportEvents() {
   URL.revokeObjectURL(url);
 }
 
+function normalizeImportedData(data) {
+  const importedEvents = Array.isArray(data) ? data : data.events;
+  const importedBirthDate = Array.isArray(data) ? "" : data.birthDate || "";
+
+  if (!Array.isArray(importedEvents)) {
+    throw new Error("invalid-events");
+  }
+
+  if (importedBirthDate && !/^\d{4}-\d{2}-\d{2}$/.test(importedBirthDate)) {
+    throw new Error("invalid-birth-date");
+  }
+
+  const normalizedEvents = importedEvents.map(normalizeEvent).filter(Boolean);
+
+  if (importedEvents.length !== normalizedEvents.length) {
+    throw new Error("invalid-event-data");
+  }
+
+  return {
+    birthDate: importedBirthDate,
+    events: normalizedEvents,
+  };
+}
+
+function importEventsFromFile(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.addEventListener("load", () => {
+    try {
+      const importedData = normalizeImportedData(JSON.parse(reader.result));
+      const shouldImport = window.confirm("Importar esta copia va a reemplazar los datos guardados actualmente en este dispositivo. Continuar?");
+      if (!shouldImport) return;
+
+      profile = { birthDate: importedData.birthDate };
+      events = importedData.events;
+
+      if (saveProfile() && saveEvents()) {
+        closeEventDialog();
+        if (birthDialog.open) birthDialog.close();
+        resetForm();
+        renderTimeline();
+      }
+    } catch {
+      window.alert("No se pudo importar la copia. Elegi un archivo JSON exportado desde esta pagina.");
+    } finally {
+      importFileInput.value = "";
+    }
+  });
+
+  reader.addEventListener("error", () => {
+    window.alert("No se pudo leer el archivo seleccionado.");
+    importFileInput.value = "";
+  });
+
+  reader.readAsText(file);
+}
+
 function openBirthDialog() {
   birthDateInput.value = profile.birthDate || "";
   birthDateInput.max = todayIso();
@@ -381,6 +442,8 @@ closeEventDialogButton.addEventListener("click", closeEventDialog);
 cancelEditButton.addEventListener("click", closeEventDialog);
 changeBirthButton.addEventListener("click", openBirthDialog);
 exportButton.addEventListener("click", exportEvents);
+importButton.addEventListener("click", () => importFileInput.click());
+importFileInput.addEventListener("change", () => importEventsFromFile(importFileInput.files[0]));
 
 clearButton.addEventListener("click", () => {
   if (events.length === 0) return;
