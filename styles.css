@@ -1,16 +1,18 @@
 :root {
-  color-scheme: light;
-  --bg: #f6f8fb;
-  --paper: #ffffff;
-  --ink: #192332;
-  --muted: #697386;
-  --line: #cdd8e4;
-  --accent: #137f78;
-  --accent-dark: #0c5f5a;
-  --accent-soft: #d8f2ee;
-  --warm: #f47b63;
-  --warning: #b33b2e;
-  --shadow: 0 18px 50px rgba(21, 35, 56, 0.12);
+  color-scheme: dark;
+  --bg: #101413;
+  --paper: #171d1b;
+  --paper-soft: #202825;
+  --paper-strong: #101513;
+  --ink: #f2f7f3;
+  --muted: #a6b4ad;
+  --line: #33433d;
+  --accent: #39c8b6;
+  --accent-dark: #7ce0d2;
+  --accent-soft: rgba(57, 200, 182, 0.16);
+  --warm: #ff8b6e;
+  --warning: #ff9a8b;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
 }
 
 * {
@@ -23,9 +25,9 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at 12% 10%, rgba(19, 127, 120, 0.16), transparent 28rem),
-    radial-gradient(circle at 92% 18%, rgba(244, 123, 99, 0.15), transparent 24rem),
-    linear-gradient(145deg, #f6f8fb 0%, #eef4f7 54%, #f8f1ee 100%);
+    radial-gradient(circle at 12% 10%, rgba(57, 200, 182, 0.18), transparent 28rem),
+    radial-gradient(circle at 92% 18%, rgba(255, 139, 110, 0.14), transparent 24rem),
+    linear-gradient(145deg, #101413 0%, #151c19 48%, #211a18 100%);
 }
 
 button,
@@ -47,15 +49,15 @@ button {
 
 .panel,
 .timeline-section {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(205, 216, 228, 0.85);
+  background: rgba(23, 29, 27, 0.9);
+  border: 1px solid rgba(90, 112, 103, 0.36);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
 }
 
 .panel {
   background:
-    linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.94)),
+    linear-gradient(rgba(15, 20, 18, 0.88), rgba(19, 25, 23, 0.96)),
     url("assets/memory-paper.png") center / cover no-repeat;
   border-radius: 8px;
   padding: 24px;
@@ -115,7 +117,7 @@ h2 {
   gap: 5px;
   margin-top: 24px;
   border-left: 4px solid var(--accent);
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(23, 29, 27, 0.78);
   border-radius: 8px;
   padding: 12px 16px;
 }
@@ -152,10 +154,10 @@ input,
 textarea,
 select {
   width: 100%;
-  border: 1px solid #b9c7d8;
+  border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink);
-  background: #fbfdff;
+  background: var(--paper-strong);
   outline: none;
   padding: 12px 13px;
   transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
@@ -170,8 +172,13 @@ input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--accent);
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(19, 127, 120, 0.14);
+  background: #121816;
+  box-shadow: 0 0 0 4px rgba(57, 200, 182, 0.18);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #718178;
 }
 
 .form-actions {
@@ -197,7 +204,7 @@ select:focus {
   align-items: center;
   gap: 10px;
   background: var(--accent);
-  color: white;
+  color: #07100e;
   padding: 0 18px;
 }
 
@@ -211,7 +218,7 @@ select:focus {
   height: 24px;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.2);
   font-size: 1.25rem;
   line-height: 1;
 }
@@ -219,15 +226,15 @@ select:focus {
 .ghost-button,
 .icon-button,
 .edit-button {
-  background: #e8eef5;
-  color: #263449;
+  background: var(--paper-soft);
+  color: var(--ink);
   padding: 0 14px;
 }
 
 .ghost-button:hover,
 .icon-button:hover,
 .edit-button:hover {
-  background: #d9e3ee;
+  background: #2a3531;
 }
 
 .timeline-section {
@@ -248,8 +255,8 @@ select:focus {
   width: 210px;
   height: 210px;
   background:
-    linear-gradient(135deg, rgba(19, 127, 120, 0.12), rgba(244, 123, 99, 0.12)),
-    repeating-linear-gradient(90deg, transparent 0 18px, rgba(25, 35, 50, 0.04) 18px 20px);
+    linear-gradient(135deg, rgba(57, 200, 182, 0.12), rgba(255, 139, 110, 0.12)),
+    repeating-linear-gradient(90deg, transparent 0 18px, rgba(242, 247, 243, 0.05) 18px 20px);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -263,13 +270,13 @@ select:focus {
 
 .icon-button.danger,
 .delete-button {
-  background: #ffe6e2;
+  background: rgba(255, 139, 110, 0.16);
   color: var(--warning);
 }
 
 .icon-button.danger:hover,
 .delete-button:hover {
-  background: #ffd5cf;
+  background: rgba(255, 139, 110, 0.24);
 }
 
 .timeline {
@@ -306,25 +313,25 @@ select:focus {
   border: 4px solid var(--paper);
   border-radius: 50%;
   background: var(--warm);
-  box-shadow: 0 0 0 2px rgba(244, 123, 99, 0.35);
+  box-shadow: 0 0 0 2px rgba(255, 139, 110, 0.36);
 }
 
 .timeline-item.marker::before {
   background: var(--accent);
-  box-shadow: 0 0 0 2px rgba(19, 127, 120, 0.32);
+  box-shadow: 0 0 0 2px rgba(57, 200, 182, 0.34);
 }
 
 .event-card {
   position: relative;
-  border: 1px solid rgba(205, 216, 228, 0.92);
+  border: 1px solid rgba(90, 112, 103, 0.46);
   border-radius: 8px;
   background: var(--paper);
   padding: 18px;
 }
 
 .timeline-item.marker .event-card {
-  background: #f4fbf9;
-  border-color: rgba(19, 127, 120, 0.2);
+  background: rgba(57, 200, 182, 0.08);
+  border-color: rgba(57, 200, 182, 0.22);
 }
 
 .event-card time {
@@ -342,7 +349,7 @@ select:focus {
 
 .event-card p {
   margin: 0;
-  color: #445168;
+  color: #c5d0ca;
   line-height: 1.58;
   white-space: pre-wrap;
 }
@@ -384,10 +391,10 @@ select:focus {
   height: 122px;
   border-radius: 42px;
   background:
-    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(var(--paper), var(--paper)) padding-box,
     linear-gradient(180deg, var(--accent), var(--warm)) border-box;
   border: 5px solid transparent;
-  box-shadow: inset 0 -26px 0 rgba(19, 127, 120, 0.12);
+  box-shadow: inset 0 -26px 0 rgba(57, 200, 182, 0.12);
 }
 
 .fab {
@@ -402,8 +409,8 @@ select:focus {
   border: 0;
   border-radius: 50%;
   background: var(--accent);
-  color: white;
-  box-shadow: 0 16px 36px rgba(12, 95, 90, 0.32);
+  color: #07100e;
+  box-shadow: 0 16px 36px rgba(57, 200, 182, 0.24);
   font-size: 2rem;
   font-weight: 850;
   line-height: 1;
@@ -422,7 +429,7 @@ select:focus {
 }
 
 .modal::backdrop {
-  background: rgba(19, 27, 39, 0.55);
+  background: rgba(5, 8, 7, 0.72);
   backdrop-filter: blur(5px);
 }
 
@@ -430,10 +437,10 @@ select:focus {
   display: grid;
   gap: 16px;
   margin: 0;
-  border: 1px solid rgba(205, 216, 228, 0.9);
+  border: 1px solid rgba(90, 112, 103, 0.46);
   border-radius: 8px;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.97)),
+    linear-gradient(rgba(15, 20, 18, 0.92), rgba(19, 25, 23, 0.98)),
     url("assets/memory-paper.png") center / cover no-repeat;
   box-shadow: var(--shadow);
   padding: 22px;
@@ -463,14 +470,14 @@ select:focus {
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: #e8eef5;
-  color: #263449;
+  background: var(--paper-soft);
+  color: var(--ink);
   font-size: 1rem;
   font-weight: 900;
 }
 
 .round-button:hover {
-  background: #d9e3ee;
+  background: #2a3531;
 }
 
 @media (max-width: 680px) {
